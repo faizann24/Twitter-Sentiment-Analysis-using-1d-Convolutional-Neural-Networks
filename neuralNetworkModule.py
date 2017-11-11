@@ -16,13 +16,16 @@ DEFINE PARAMETERS
 '''
 vocabularyThreshold = 25	#words having count less than this threshold will not be in our vocabulary
 maxWordsInATweet = 35	#number of max words to keep in a tweet
-minWordsInATweet = 5	#tweets containing words less than this value will be ignored
+minWordsInATweet = 5	#tweets containing words less than this value will be ignored while training
 
 '''
 FUNCTIONS
 '''
 def cleanTweet(tweet):
-	words = text.text_to_word_sequence(tweet, filters=' !#$%&()*+,-./:;<=>?@[\\]^_{|}~\t\n"', lower=True, split=" ")
+	initialCleanedTweet = tweet.split(" ")
+	initialCleanedTweet = [w for w in initialCleanedTweet if "@" not in w and "#" not in w and "/" not in w and w.lower() != 'rt']
+	initialCleanedTweet = ''.join(str(e) + " " for e in initialCleanedTweet)
+	words = text.text_to_word_sequence(initialCleanedTweet, filters=' !#$%&()*+,-./:;<=>?@[\\]^_{|}~\t\n"', lower=True, split=" ")
 	return words
 
 def loadData(filepath):
@@ -153,7 +156,10 @@ MODEL TRAINING
 epochsToRun = 10
 batchSize = 100
 for i in range(0,epochsToRun):
+	#training the model
 	model.fit(features,labels,verbose=1,batch_size=batchSize,epochs=1,validation_split=0.10,shuffle=True)
+
+	#saving the checkpoint
 	model.save('model_checkpoints/model_checkpoint_'+str(i)+'.h5')
 
 
